@@ -1,0 +1,19 @@
+FROM --platform=linux/amd64 ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update && apt-get install -y \
+        git \
+        build-essential \
+        zlib1g-dev \
+        time \
+    && rm -rf /var/lib/apt/lists/*
+
+# Build minimap2 from source
+RUN git clone --depth 1 https://github.com/lh3/minimap2 /opt/minimap2 \
+    && cd /opt/minimap2 \
+    && make \
+    && cp minimap2 /usr/local/bin/minimap2
+
+# Run everything under GNU time -v so peak RSS is reported on stderr
+ENTRYPOINT ["/usr/bin/time", "-v"]

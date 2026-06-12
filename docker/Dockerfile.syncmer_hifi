@@ -1,0 +1,15 @@
+FROM --platform=linux/amd64 rust:latest
+
+RUN apt-get update && apt-get install -y time git && rm -rf /var/lib/apt/lists/*
+
+# Clone syncmer-hifi pinned to the exact commit used in this benchmark
+RUN git clone https://github.com/mahmudsami/syncmer-hifi.git /opt/syncmer-hifi \
+    && git -C /opt/syncmer-hifi checkout 18f7e12
+
+WORKDIR /opt/syncmer-hifi
+
+RUN cargo build --release \
+    && cp target/release/syncmer-hifi /usr/local/bin/syncmer-hifi
+
+# Run everything under GNU time -v so peak RSS is reported on stderr
+ENTRYPOINT ["/usr/bin/time", "-v"]

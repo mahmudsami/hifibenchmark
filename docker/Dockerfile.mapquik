@@ -1,0 +1,26 @@
+FROM rust:latest
+
+# Get the newest compiler (handles edition2024 dependencies perfectly)
+RUN rustup install nightly
+
+# Clone mapquik pinned to the exact commit used in this benchmark
+RUN git clone https://github.com/ekimb/mapquik.git /opt/mapquik \
+    && git -C /opt/mapquik checkout d304b38
+
+WORKDIR /opt/mapquik
+
+# Delete lockfile to avoid lockfile version mismatches
+RUN rm -f Cargo.lock
+
+# 1. Force Cargo to download all dependencies (including the broken commit)
+RUN cargo +nightly fetch
+
+# 2. Hot-patch the broken AVX-512 syntax directly in Cargo's downloaded cache
+RUN find /usr/local/cargo/git/checkouts/ -name "*.rs" -exec sed -i 's/as \*mut u8, mask/as \*mut i32, mask/g' {} +
+
+# 3. Build the project (Cargo will use our patched files!)
+RUN cargo +nightly build --release
+
+RUN cp target/release/mapquik /usr/local/bin/mapquik
+
+ENTRYPOINT ["mapquik"]
