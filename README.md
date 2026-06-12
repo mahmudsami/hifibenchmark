@@ -40,9 +40,13 @@ is evaluated against known truth (no pbsim/alignment needed). A separate
 ## Setup
 
 ```bash
-# 1. Build the five mapper images (each clones its tool from GitHub at a pinned
-#    commit — no local source dirs needed; takes a while the first time).
-bash docker/build_images.sh
+# 1. Build the mapper images (takes a while the first time).
+#    minimap2 / blend / mapquik / strobealign clone their tool from public GitHub
+#    at a pinned commit. syncmer-hifi is a private/unpublished method, so its
+#    image is built from a LOCAL source checkout — point to it like so:
+SYNCMER_HIFI_SRC=/path/to/syncmer-hifi bash docker/build_images.sh
+#    (Defaults to $HOME/syncmer-hifi. If that source isn't available the other
+#    four images still build and only the syncmer image is skipped.)
 ```
 
 References are downloaded automatically on the first run (Step 1 of the pipeline).
