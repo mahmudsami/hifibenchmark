@@ -59,6 +59,10 @@ need_index() {
                 [ -f "$MAPPINGS_DIR/${genome}_${m}_index_metrics.json" ] || return 0 ;;
         esac
     done
+    # Extra: synpact's single-thread index timing (for the index-resources plot).
+    if printf '%s\n' "${MAPPERS[@]}" | grep -qx synpact; then
+        [ -f "$MAPPINGS_DIR/${genome}_synpact1t_index_metrics.json" ] || return 0
+    fi
     for tag in "${tags[@]}"; do
         for m in "${MAPPERS[@]}"; do
             [ -f "$MAPPINGS_DIR/${genome}_${m}_${tag}.paf" ] || return 0
@@ -106,6 +110,11 @@ for GENOME in "${REAL_GENOMES[@]}"; do
                     bash "$SCRIPTS/04_index_${IDXM}.sh" "$GENOME" ;;
             esac
         done
+        # Extra: also time synpact's index with a SINGLE thread (metrics only).
+        if printf '%s\n' "${MAPPERS[@]}" | grep -qx synpact; then
+            log "Index: build synpact (1 thread) genome=$GENOME"
+            bash "$SCRIPTS/04_index_synpact_1t.sh" "$GENOME"
+        fi
     fi
 
     for RS in "${READSETS[@]}"; do
@@ -157,6 +166,10 @@ log "Step 13: collecting real-data results"
 python3 "$SCRIPTS/13_collect_real.py"
 log "Step 13: collecting index build time/memory → index_results.csv"
 python3 "$SCRIPTS/collect_index_results.py"
+
+# Extra: index build time + peak memory plot (incl. synpact at 1 thread)
+log "Extra plot: index resources (time + memory)"
+python3 "$SCRIPTS/extra_plot_index.py" || true
 
 # Step 14 — plot
 log "Step 14: plotting real-data results"

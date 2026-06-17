@@ -205,8 +205,16 @@ Focused figures generated on top of the standard grid plots:
 | `scripts/extra_plot_sim_bar.py [err] [len]` | `results/plots/sim_bar_err<E>_len<L>.png` | One operating point (default 0.5 % err, 20 kb) as 2×2 metric bar charts; groups = human/maize/rye, bars = mappers |
 | `scripts/extra_plot_real_rye.py` | `results/plots/real_rye.png` | Both rye read sets (HiFi + DeepConsensus) across accuracy / mapping time / peak RSS, bars = mappers |
 | `scripts/extra_plot_lungfish_err05.py [genome]` | `results/lungfish/<genome>_err0.005_2x2.png` | The 0.5 %-error slice of minimap2-vs-synpact as a 2×2 metric grid (x = read length) |
+| `scripts/extra_plot_index.py` | `results/plots/index_resources.png` | Index build time + peak RSS per genome, bars = builders — including **synpact at 1 thread** (`synpact1t`) next to the default 8-thread synpact |
 
-The first two run automatically at the end of `run_benchmark.sh` / `run_real_benchmark.sh`; the lungfish one is run manually after the sweep.
+The simulation bar, real-rye and index-resources plots run automatically at the
+end of `run_benchmark.sh` / `run_real_benchmark.sh`; the lungfish one is run
+manually after the sweep.
+
+The index-resources plot needs an extra single-thread synpact index build, which
+the pipeline now performs per genome (`scripts/04_index_synpact_1t.sh`, metrics
+only — the 8-thread index is what mapping uses) and records as the `synpact1t`
+rows in `results/csv/index_results.csv`.
 
 ## Layout
 

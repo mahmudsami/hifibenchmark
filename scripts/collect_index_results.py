@@ -7,6 +7,10 @@ For every mapper that builds a real index (minimap2, blend, synpact
     results/mappings/<genome>_<mapper>_index_metrics.json   {wall_time_s, peak_rss_mb}
 This gathers them, adds the on-disk index size, and writes one table:
     genome, mapper, index_time_s, index_peak_rss_mb, index_size_mb
+
+The "synpact1t" rows are an EXTRA measurement: synpact's index built with a
+single thread (04_index_synpact_1t.sh), used only by the index-resources plot to
+show the thread-count time/memory trade-off. synpact maps with the 8-thread index.
 """
 import os, re, json, csv
 
@@ -16,8 +20,9 @@ INDEX_DIR    = os.path.join(BENCH_DIR, "data", "indexes")
 REFS_DIR     = os.path.join(BENCH_DIR, "data", "references")
 CSV_DIR      = os.path.join(BENCH_DIR, "results", "csv")
 
-INDEX_MAPPERS = ["minimap2", "blend", "synpact"]   # mapquik excluded
-PAT = re.compile(r"^(?P<genome>.+)_(?P<mapper>minimap2|blend|synpact)_index_metrics\.json$")
+INDEX_MAPPERS = ["minimap2", "blend", "synpact", "synpact1t"]   # mapquik excluded
+# synpact1t before synpact so the longer token wins the alternation.
+PAT = re.compile(r"^(?P<genome>.+)_(?P<mapper>minimap2|blend|synpact1t|synpact)_index_metrics\.json$")
 
 
 def index_size_mb(genome, mapper):
@@ -26,6 +31,7 @@ def index_size_mb(genome, mapper):
         "minimap2":    [os.path.join(INDEX_DIR, genome, "minimap2_maphifi.mmi")],
         "blend":       [os.path.join(INDEX_DIR, genome, "blend_maphifi.bl")],
         "synpact":     [os.path.join(INDEX_DIR, genome, "synpact.idx")],
+        "synpact1t":   [os.path.join(INDEX_DIR, genome, "synpact_1t.idx")],
     }.get(mapper, [])
     total = sum(os.path.getsize(p) for p in candidates if os.path.exists(p))
     return round(total / 1024 / 1024, 1) if total else None
