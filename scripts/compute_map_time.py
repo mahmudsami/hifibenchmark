@@ -10,9 +10,8 @@ with the index already in memory):
   minimap2 / BLEND : "Real time: Z" − "[M::main::T*..] loaded/built the index"
                      (minimap2 builds its index on the fly; T is that build time)
   mapquik          : "Mapped query sequences in X(ms|s)"  (its own map-phase clock)
-  syncmer-hifi     : GNU time -v "Elapsed" − per-genome index-LOAD baseline
-                     (syncmer loads a prebuilt index; baseline measured separately)
-  strobealign      : "Total time mapping: X.XX s"  (strobealign's own map-phase clock)
+  synpact     : GNU time -v "Elapsed" − per-genome index-LOAD baseline
+                     (synpact loads a prebuilt index; baseline measured separately)
 
 Usage: python3 compute_map_time.py
 Processes every *_metrics.json in results/mappings/ that has a matching *.log.
@@ -22,18 +21,17 @@ import os, re, json, glob
 BENCH_DIR    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAPPINGS_DIR = os.path.join(BENCH_DIR, "results", "mappings")
 
-# syncmer-hifi index-LOAD baselines (seconds), measured by mapping a 20-read
+# synpact index-LOAD baselines (seconds), measured by mapping a 20-read
 # file against the prebuilt LEAN index (Elapsed ≈ load time). The lean L3-L6
 # index (~0.5 GB) loads in <1 s, vs ~9.5 s for the old L0-L6 index.
-SYNCMER_LOAD_BASELINE = {"human": 0.8, "maize": 0.6}
+SYNPACT_LOAD_BASELINE = {"human": 0.8, "maize": 0.6}
 
-MAPPERS = ["minimap2", "blend", "mapquik", "syncmer", "strobealign"]
+MAPPERS = ["minimap2", "blend", "mapquik", "synpact"]
 
 RE_REAL   = re.compile(r"Real time:\s*([\d.]+)\s*sec")
 RE_INDEX  = re.compile(r"\[M::main::([\d.]+)\*[\d.]+\]\s*loaded/built the index")
 RE_MQMAP  = re.compile(r"Mapped query sequences in\s*([\d.]+)\s*(ms|us|µs|s)\b")
 RE_ELAPS  = re.compile(r"Elapsed \(wall clock\) time[^\n]*?(\d+:[\d.:]+)\s*$", re.M)
-RE_SAMAP  = re.compile(r"Total time mapping:\s*([\d.]+)\s*s")
 
 
 def hms_to_sec(s: str) -> float:
@@ -60,12 +58,7 @@ def map_time_for(mapper: str, genome: str, log_path: str, wall: float = None):
             v, unit = float(m.group(1)), m.group(2)
             return v / 1000.0 if unit in ("ms",) else (v / 1e6 if unit in ("us", "µs") else v)
 
-    elif mapper == "strobealign":
-        m = RE_SAMAP.search(txt)
-        if m:
-            return float(m.group(1))
-
-    elif mapper == "syncmer":
+    elif mapper == "synpact":
         m = RE_ELAPS.search(txt)
         if m:
             elapsed = hms_to_sec(m.group(1))
@@ -73,7 +66,7 @@ def map_time_for(mapper: str, genome: str, log_path: str, wall: float = None):
             # says otherwise, fall back to the trustworthy wall measurement.
             if wall is not None:
                 elapsed = min(elapsed, wall)
-            base = SYNCMER_LOAD_BASELINE.get(genome, 0.0)
+            base = SYNPACT_LOAD_BASELINE.get(genome, 0.0)
             return max(elapsed - base, 0.01)
 
     return None

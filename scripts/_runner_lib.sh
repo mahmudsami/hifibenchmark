@@ -32,3 +32,28 @@ container_ref() {
 parse_peak() {
     python3 "$BENCH_DIR/scripts/parse_peak_rss.py" "$1" "$2"
 }
+
+# record_index_size <metrics_json> <path-or-glob>...
+# Stamp the on-disk index size (MB) into the metrics JSON right after building,
+# so the index can be deleted later (to bound peak disk) without losing
+# index_size_mb — collect_index_results.py reads it back from the JSON.
+record_index_size() {
+    local metrics="$1"; shift
+    python3 - "$metrics" "$@" <<'PY'
+import sys, os, glob, json
+metrics = sys.argv[1]
+total = 0
+for pat in sys.argv[2:]:
+    for p in glob.glob(pat):
+        if os.path.isfile(p):
+            total += os.path.getsize(p)
+if not os.path.exists(metrics):
+    sys.exit(0)
+with open(metrics) as f:
+    d = json.load(f)
+d["index_size_mb"] = round(total / 1024 / 1024, 1) if total else None
+with open(metrics, "w") as f:
+    json.dump(d, f, indent=2)
+print(f"  index_size_mb ← {d['index_size_mb']}")
+PY
+}

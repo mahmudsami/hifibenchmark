@@ -15,8 +15,7 @@ bash scripts/04_build_all_indexes.sh                 # or pass specific genomes
 # 2. Map against the pre-built index (mapping-only peak RSS)
 bash scripts/04_map_minimap2.sh    human 0.001 15000
 bash scripts/04_map_blend.sh       human 0.001 15000
-bash scripts/04_map_strobealign.sh human 0.001 15000
-bash scripts/04_map_syncmer.sh     human 0.001 15000
+bash scripts/04_map_synpact.sh     human 0.001 15000
 bash scripts/04_map_mapquik.sh     human 0.001 15000   # see mapquik caveat below
 ```
 
@@ -30,8 +29,7 @@ only difference is that `peak_rss_mb` now reflects mapping alone.
 |-------------|------------------------|--------------------------|----------------------------------------|
 | minimap2    | `minimap2 -d`          | loads `.mmi`             | `data/indexes/<g>/minimap2_maphifi.mmi`|
 | blend       | `blend -d`             | loads `.bl`              | `data/indexes/<g>/blend_maphifi.bl`    |
-| strobealign | `strobealign -i`       | `--use-index`            | `data/references/<g>/genome.fa.gz.r*.sti` |
-| syncmer     | `--build-index`        | `--map <reads> <idx>`    | `data/indexes/<g>/syncmer_hifi.idx`    |
+| synpact     | `--build-index`        | `--map <reads> <idx>`    | `data/indexes/<g>/synpact.idx`    |
 | mapquik     | prepare single-line FASTA | inline k-min-mer index | `data/indexes/<g>/genome.mapquik.fa.gz` |
 
 **mapquik** has no serialized index — it rebuilds its k-min-mer index in memory

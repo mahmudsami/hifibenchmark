@@ -17,13 +17,16 @@ METRICS="$MAPPINGS_DIR/${GENOME}_minimap2_${TAG}_metrics.json"
 LOG="$MAPPINGS_DIR/${GENOME}_minimap2_${TAG}.log"
 C_READS="$(container_reads "$GENOME" "$TAG")"
 
-if [ ! -f "$INDEX_HOST" ]; then
-    echo "Missing index $INDEX_HOST — run: 04_index_minimap2.sh $GENOME" >&2
-    exit 1
-fi
+# Already mapped → skip before requiring the index. The index is deleted after
+# mapping to save disk, so on a completed re-run it is legitimately absent; a
+# present PAF means the work is done regardless.
 if [ -f "$OUT_PAF" ]; then
     echo "Already mapped: $OUT_PAF — skipping."
     exit 0
+fi
+if [ ! -f "$INDEX_HOST" ]; then
+    echo "Missing index $INDEX_HOST — run: 04_index_minimap2.sh $GENOME" >&2
+    exit 1
 fi
 
 echo "Mapping minimap2 (pre-built index): genome=$GENOME err=$ERR len=$LEN"

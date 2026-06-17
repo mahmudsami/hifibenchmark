@@ -15,8 +15,7 @@ for g in "${TARGETS[@]}"; do
     echo "===== indexing $g ====="
     bash "$HERE/04_index_minimap2.sh"    "$g"
     bash "$HERE/04_index_blend.sh"       "$g"
-    bash "$HERE/04_index_strobealign.sh" "$g"
-    bash "$HERE/04_index_syncmer.sh"     "$g"
+    bash "$HERE/04_index_synpact.sh"     "$g"
     bash "$HERE/04_index_mapquik.sh"     "$g"
 done
 

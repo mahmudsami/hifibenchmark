@@ -3,8 +3,8 @@
 # Streams the public FASTQ and keeps the first N reads (cheap — only the needed
 # prefix is transferred, the rest of the stream is dropped).
 #
-#   Human      : HG002 (GIAB) DeepConsensus HiFi, q20  — m64179e .../ccs reads
-#   Maize      : B73 (Kim et al. 2020, SRR11606869)    — Sequel II HiFi reads
+#   Human      : HG002 PacBio Revio HiFi (HPRC, SRR34290932) — CCS reads, ~16.5 kb
+#   Maize      : Mo17 HiFi (SRR15447414) — matches the Mo17 T2T reference
 #   Arabidopsis: Col-0 HiFi (ERR13987671)
 #   Rye (hifi) : Lo7 HiFi (ERR15194059)
 #   Rye (dc)   : Lo7 DeepConsensus reads (set READSET=dc)
@@ -31,8 +31,16 @@ fi
 OUT="$READS_DIR/$GENOME/${TAG}.fastq"
 
 case "${GENOME}_${READSET}" in
-    human_hifi)       URL="https://storage.googleapis.com/brain-genomics-public/research/deepconsensus/data/v0.3/assembly_analysis/fastqs/HG002_24kb_2SMRT_cells.dc.v0.3.q20.fastq.gz" ;;
-    maize_hifi)       URL="https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR116/069/SRR11606869/SRR11606869_subreads.fastq.gz" ;;
+    # HG002 Revio HiFi reads (CCS, ~16.5 kb), study PRJNA1283554 "HG002 HiFi
+    # sequencing for HPRC", public 2025-07-06. The "_subreads" in the ENA path is
+    # ENA's default filename — the content is genuine HiFi (16.5 kb mean length).
+    human_hifi)       URL="https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR342/032/SRR34290932/SRR34290932_subreads.fastq.gz" ;;
+    # Mo17 HiFi (CCS) reads, study "Zea mays Mo17 Genome sequencing and assembly"
+    # — the same inbred line as the Mo17 T2T reference (Zm-Mo17-REFERENCE-CAU-2.0),
+    # so reads and reference match. (The previous B73 reads were mapped against the
+    # Mo17 reference — two highly divergent inbred lines — which unfairly depressed
+    # maize mapping rates.) "_subreads" is ENA's default filename; content is HiFi.
+    maize_hifi)       URL="https://ftp.sra.ebi.ac.uk/vol1/fastq/SRR154/014/SRR15447414/SRR15447414_subreads.fastq.gz" ;;
     arabidopsis_hifi) URL="https://ftp.sra.ebi.ac.uk/vol1/fastq/ERR139/071/ERR13987671/ERR13987671.fastq.gz" ;;
     rye_hifi)         URL="https://ftp.sra.ebi.ac.uk/vol1/fastq/ERR151/059/ERR15194059/ERR15194059.fastq.gz" ;;
     # Rye Lo7 PacBio Revio (DeepConsensus) reads — ERR15194060, BioProject PRJEB91463

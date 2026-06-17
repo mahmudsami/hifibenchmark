@@ -17,14 +17,14 @@ import sys, os, json, statistics
 
 BENCH_DIR    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAPPINGS_DIR = os.path.join(BENCH_DIR, "results", "mappings")
-MAPPERS      = ["minimap2", "blend", "strobealign", "syncmer", "mapquik"]
+MAPPERS      = ["minimap2", "blend", "synpact", "mapquik"]
 DEFAULT_TAG  = "errreal_len100k"
 
 # Consensus is counted per ALGORITHM FAMILY, not per mapper. Each mapper here is
 # its own family; agreement needs >= min_agree DISTINCT families.
 FAMILY = {
-    "minimap2": "minimap2", "blend": "blend", "strobealign": "strobealign",
-    "syncmer": "syncmer", "mapquik": "mapquik",
+    "minimap2": "minimap2", "blend": "blend",
+    "synpact": "synpact", "mapquik": "mapquik",
 }
 
 

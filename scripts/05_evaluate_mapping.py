@@ -6,7 +6,7 @@ Usage:
     python3 05_evaluate_mapping.py <truth.tsv> <mapped.paf> <out.json> [tolerance=1000]
 
 truth.tsv format  : read_name  chr  start  end   (tab-separated, header optional)
-PAF format        : standard minimap2/syncmer-hifi PAF
+PAF format        : standard minimap2/synpact PAF
 tolerance         : a mapping is "correct" if mapped_start ∈ [true_start-tol, true_end+tol]
 """
 import sys, os, json, gzip

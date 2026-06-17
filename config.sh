@@ -22,7 +22,7 @@ PLOTS_DIR="$RESULTS_DIR/plots"
 # (no pbsim/QSHMM dependency).
 
 # ── Benchmark parameters ──────────────────────────────────────────────────────
-GENOMES=("human" "maize" "arabidopsis" "rye")
+GENOMES=("human" "human_y" "maize" "arabidopsis" "rye")
 
 # Error rates as fractions (0.001 = 0.1 %, 0.005 = 0.5 %, 0.01 = 1 %)
 ERROR_RATES=("0" "0.001" "0.005" "0.01")
@@ -37,10 +37,20 @@ SIM_DEPTH="0.05"
 # Takes precedence over SIM_DEPTH. Leave empty to use depth-based counts.
 NUM_READS="${NUM_READS:-100000}"
 
-# Delete each combo's simulated reads after its mappers finish, to bound peak
-# disk to one combo (reads are gzipped and regenerate deterministically).
-# Set to 1 to keep all read files instead.
-KEEP_READS="0"
+# Keep simulated reads after each combo's mappers finish (set to 0 to delete
+# them and bound peak disk to one combo). Reads are kept so they stay matched to
+# their truth: the simulator is NOT reproducible across runs (its RNG seed uses
+# Python's per-process-randomized hash()), so a deleted read set cannot be
+# regenerated identically — only alongside a fresh, different truth.
+KEEP_READS="1"
+
+# Delete each genome's prebuilt indexes once all of that genome's mapping combos
+# finish (set to 1 to keep them). Indexes are large; build time, peak RSS, and
+# on-disk size are stamped into <genome>_<mapper>_index_metrics.json at build
+# time (record_index_size), so they can be removed without losing any reported
+# metric. Bounds peak index disk to a single genome instead of all genomes at
+# once. A later --force re-run rebuilds any index it needs.
+KEEP_INDEXES="${KEEP_INDEXES:-0}"
 
 # Threads for mapping tools
 THREADS="${THREADS:-8}"

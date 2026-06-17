@@ -1,0 +1,19 @@
+FROM --platform=linux/amd64 rust:latest
+
+RUN apt-get update && apt-get install -y \
+        git \
+        time \
+    && rm -rf /var/lib/apt/lists/*
+
+# Clone synpact pinned to the exact commit used in this benchmark.
+# Public repo: https://github.com/mahmudsami/synpact (default branch `master`).
+RUN git clone https://github.com/mahmudsami/synpact.git /opt/synpact \
+    && git -C /opt/synpact checkout 36e30d8
+
+WORKDIR /opt/synpact
+
+RUN cargo build --release \
+    && cp target/release/synpact /usr/local/bin/synpact
+
+# Run everything under GNU time -v so peak RSS is reported on stderr
+ENTRYPOINT ["/usr/bin/time", "-v"]

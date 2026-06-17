@@ -33,4 +33,18 @@ download_if_missing "$MAIZE_URL" "$REFS_DIR/maize/genome.fa.gz"
 download_if_missing "$ARABIDOPSIS_URL" "$REFS_DIR/arabidopsis/genome.fa.gz"
 download_if_missing "$RYE_URL" "$REFS_DIR/rye/genome.fa.gz"
 
+# human_y: the T2T-CHM13v2.0 Y chromosome (NC_060948.1) extracted from the human
+# reference — a small, highly repetitive (ampliconic/satellite) stress test.
+HUMAN_Y="$REFS_DIR/human_y/genome.fa.gz"
+if [ -f "$HUMAN_Y" ]; then
+    echo "Already exists: $HUMAN_Y"
+else
+    echo "Extracting chrY (NC_060948.1) → $HUMAN_Y ..."
+    mkdir -p "$REFS_DIR/human_y"
+    # NC_060948.1 is the last record in CHM13v2.0, so print from its header to EOF
+    gzip -dc "$REFS_DIR/human/genome.fa.gz" \
+        | awk '/^>NC_060948.1/{p=1} p' | gzip -1 > "$HUMAN_Y"
+    echo "Saved: $HUMAN_Y"
+fi
+
 echo "References ready."

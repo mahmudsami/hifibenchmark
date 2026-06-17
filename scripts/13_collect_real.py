@@ -12,7 +12,7 @@ BENCH_DIR    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAPPINGS_DIR = os.path.join(BENCH_DIR, "results", "mappings")
 CSV_DIR      = os.path.join(BENCH_DIR, "results", "csv")
 GENOMES      = ["human", "maize", "arabidopsis", "rye"]
-MAPPERS      = ["minimap2", "blend", "strobealign", "strobeclust", "syncmer", "mapquik"]
+MAPPERS      = ["minimap2", "blend", "strobeclust", "synpact", "mapquik"]
 
 # Each entry: (genome, readset_label, tag)
 # rye has two readsets: standard HiFi and DeepConsensus
