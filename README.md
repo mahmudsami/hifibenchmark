@@ -196,6 +196,18 @@ The appendix tables for the paper are generated straight from the result CSVs by
 - Generated data (`data/`, `results/`) is git-ignored; everything regenerates
   deterministically from the scripts.
 
+## Extra plots
+
+Focused figures generated on top of the standard grid plots:
+
+| Script | Output | Shows |
+|--------|--------|-------|
+| `scripts/extra_plot_sim_bar.py [err] [len]` | `results/plots/sim_bar_err<E>_len<L>.png` | One operating point (default 0.5 % err, 20 kb) as 2×2 metric bar charts; groups = human/maize/rye, bars = mappers |
+| `scripts/extra_plot_real_rye.py` | `results/plots/real_rye.png` | Both rye read sets (HiFi + DeepConsensus) across accuracy / mapping time / peak RSS, bars = mappers |
+| `scripts/extra_plot_lungfish_err05.py [genome]` | `results/lungfish/<genome>_err0.005_2x2.png` | The 0.5 %-error slice of minimap2-vs-synpact as a 2×2 metric grid (x = read length) |
+
+The first two run automatically at the end of `run_benchmark.sh` / `run_real_benchmark.sh`; the lungfish one is run manually after the sweep.
+
 ## Layout
 
 ```

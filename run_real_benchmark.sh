@@ -162,6 +162,10 @@ python3 "$SCRIPTS/collect_index_results.py"
 log "Step 14: plotting real-data results"
 python3 "$SCRIPTS/14_plot_real.py"
 
+# Extra: both rye read sets (HiFi + DeepConsensus) × mappers
+log "Extra plot: rye HiFi vs DeepConsensus"
+python3 "$SCRIPTS/extra_plot_real_rye.py" || true
+
 log "Real-data benchmark complete."
 log "  CSV  : $CSV_DIR/results_real.csv"
 log "  Plot : $PLOTS_DIR/real_benchmark.png"

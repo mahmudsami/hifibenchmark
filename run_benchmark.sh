@@ -190,6 +190,10 @@ python3 "$SCRIPTS/07_plot_accuracy.py"
 log "Step 8: plotting performance"
 python3 "$SCRIPTS/08_plot_time_memory.py"
 
+# Extra: single operating-point (0.5 % err, 20 kb) bar chart, genomes × mappers
+log "Extra plot: simulation bar chart (0.5% err, 20kb)"
+python3 "$SCRIPTS/extra_plot_sim_bar.py" 0.005 20000 || true
+
 log "Benchmark complete."
 log "  CSV   : $CSV_DIR/results.csv"
 log "  Plots : $PLOTS_DIR/"
