@@ -30,4 +30,5 @@ python3 "$BENCH_DIR/scripts/run_timed.py" "$METRICS" \
     > /dev/null 2> "$LOG"
 
 parse_peak "$METRICS" "$LOG"
+record_index_size "$METRICS" "$INDEX_HOST"
 echo "Index saved: $INDEX_HOST"

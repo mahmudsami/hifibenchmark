@@ -21,7 +21,7 @@ Outputs:
 Reads the reference from the first of these that exists:
     genome_clean.fa, genome.fa, genome.fa.gz
 """
-import sys, os, gzip, random
+import sys, os, gzip, random, hashlib
 
 # ── Tunable constants ─────────────────────────────────────────────────────────
 MIN_CONTIG     = 50_000      # ignore contigs shorter than this
@@ -140,7 +140,10 @@ def main():
     n_reads = n_reads_arg if n_reads_arg else max(1, int(DEPTH * genome_len / mean))
     len_sd  = max(1, int(mean * LEN_SD_FRAC))
 
-    rng = random.Random(hash((genome, err, mean)) & 0xFFFFFFFF)
+    # deterministic seed (Python's hash() is per-process randomized → don't use it),
+    # so regenerating the same (genome, err, len) always yields the SAME reads.
+    seed = int.from_bytes(hashlib.sha1(f"{genome}|{err}|{mean}".encode()).digest()[:8], "big")
+    rng = random.Random(seed)
     print(f"Genome={genome}  contigs={len(names)}  size={genome_len:,} bp")
     print(f"Simulating {n_reads:,} reads  mean_len={mean}  sd={len_sd}  error={err*100:.2f}%")
 

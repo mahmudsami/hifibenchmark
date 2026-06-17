@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Re-run the rye err=0.005 block (all lengths × all mappers) that failed when
-# Docker went down mid-run. Reuses the existing rye index. 1 thread / 10k reads.
+# Docker went down mid-run. Reuses the existing rye index. 8 threads / 100k reads.
 set -uo pipefail
 BENCH_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 source "$BENCH_DIR/config.sh"
 SCRIPTS="$BENCH_DIR/scripts"
 G=rye; E=0.005
-MAPPERS=(minimap2 blend mapquik syncmer)
+MAPPERS=(minimap2 blend mapquik synpact)
 LENS=(10000 15000 20000 25000)
 log() { echo "[$(date '+%H:%M:%S')] $*"; }
 

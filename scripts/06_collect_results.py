@@ -13,9 +13,9 @@ BENCH_DIR    = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MAPPINGS_DIR = os.path.join(BENCH_DIR, "results", "mappings")
 CSV_DIR      = os.path.join(BENCH_DIR, "results", "csv")
 
-MAPPERS  = {"minimap2", "blend", "mapquik", "strobealign", "syncmer"}
+MAPPERS  = {"minimap2", "blend", "mapquik", "synpact"}
 EVAL_PAT = re.compile(
-    r"^(?P<genome>.+)_(?P<mapper>minimap2|blend|mapquik|strobealign|syncmer)"
+    r"^(?P<genome>.+)_(?P<mapper>minimap2|blend|mapquik|synpact)"
     r"_err(?P<err>[0-9.]+)_len(?P<len>[0-9]+)_eval\.json$"
 )
 

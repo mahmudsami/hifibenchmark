@@ -4,7 +4,7 @@ Patch a run_timed metrics JSON with the true peak RSS parsed from a tool's log.
 
 Dockerized mappers report their peak memory to stderr in one of two ways:
     BLEND / mapquik          : "Peak RSS: <x> GB" / "Maximum RSS: <x>GB"
-    minimap2 / syncmer-hifi  : run under `/usr/bin/time -v`, which prints
+    minimap2 / synpact  : run under `/usr/bin/time -v`, which prints
                                "Maximum resident set size (kbytes): <N>"
 Host psutil only sees the Docker client process, so we overwrite peak_rss_mb
 with the value reported from inside the container.

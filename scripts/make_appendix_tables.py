@@ -9,15 +9,14 @@ OUT = "paper/appendix_tables.tex"
 MAPPER_NAME = {
     "minimap2": r"\texttt{minimap2}",
     "blend": "BLEND",
-    "strobealign": r"\texttt{strobealign}",
     "strobeclust": r"\texttt{strobeclust}",
     "mapquik": r"\texttt{mapquik}",
-    "syncmer": r"\toolname",
+    "synpact": r"\toolname",
 }
 # Mappers shown in the main per-genome tables (mapquik has its own separate table)
-MAIN_MAPPERS = {"minimap2", "blend", "strobealign", "strobeclust", "syncmer"}
+MAIN_MAPPERS = {"minimap2", "blend", "strobeclust", "mapquik", "synpact"}
 MAPPER_ORDER = {m: i for i, m in enumerate(
-    ["minimap2", "blend", "strobealign", "strobeclust", "syncmer", "mapquik"])}
+    ["minimap2", "blend", "strobeclust", "mapquik", "synpact"])}
 GENOMES = ["arabidopsis", "human", "maize", "rye"]
 GENOME_TITLE = {"arabidopsis": "\\emph{Arabidopsis}", "human": "Human",
                 "maize": "Maize", "rye": "Rye"}
@@ -58,7 +57,7 @@ def _longtable_rows(rows, lines):
 HEADER_COLS = (r"\toprule Mapper & Err.\ (\%) & Len.\ (kb) & Mapped & Acc.\ (\%) & "
                r"Prec.\ (\%) & W-chr & Time (s) & RSS (MB) \\ \midrule")
 
-# ---- main per-genome tables (minimap2, BLEND, strobealign, syncmer) ----
+# ---- main per-genome tables (minimap2, BLEND, synpact) ----
 for g in GENOMES:
     rows = [r for r in by_genome[g] if r["mapper"] in MAIN_MAPPERS]
     rows.sort(key=lambda r: (float(r["error_pct"]), int(r["read_length"]),
@@ -69,33 +68,6 @@ for g in GENOMES:
                  r"Acc.\ is over all reads, Prec.\ over placed reads; W-chr is wrong-chromosome "
                  r"calls; time excludes index loading.}\\" % (GENOME_TITLE[g], n))
     lines.append(r"\label{tab:app-%s}\\" % g)
-    lines.append(HEADER_COLS)
-    lines.append(r"\endfirsthead")
-    lines.append(r"\multicolumn{9}{l}{\footnotesize\itshape \tablename~\thetable\ (continued)}\\")
-    lines.append(HEADER_COLS)
-    lines.append(r"\endhead")
-    lines.append(r"\midrule \multicolumn{9}{r}{\footnotesize continued on next page}\\")
-    lines.append(r"\endfoot")
-    lines.append(r"\bottomrule")
-    lines.append(r"\endlastfoot")
-    _longtable_rows(rows, lines)
-    lines.append(r"\end{longtable}")
-    lines.append("")
-
-# ---- mapquik-only tables (one per genome) -----------------------------------
-lines.append("% --- mapquik (separate appendix) ---")
-lines.append("")
-for g in GENOMES:
-    rows = [r for r in by_genome[g] if r["mapper"] == "mapquik"]
-    if not rows:
-        continue
-    rows.sort(key=lambda r: (float(r["error_pct"]), int(r["read_length"])))
-    n = by_genome[g][0]["total_reads"] if by_genome[g] else "?"
-    lines.append(r"\begin{longtable}{l r r r r r r r r}")
-    lines.append(r"\caption{\texttt{mapquik} simulated benchmark for %s (%s reads per condition). "
-                 r"Acc.\ is over all reads, Prec.\ over placed reads; W-chr is wrong-chromosome "
-                 r"calls; time excludes index loading.}\\" % (GENOME_TITLE[g], n))
-    lines.append(r"\label{tab:app-mapquik-%s}\\" % g)
     lines.append(HEADER_COLS)
     lines.append(r"\endfirsthead")
     lines.append(r"\multicolumn{9}{l}{\footnotesize\itshape \tablename~\thetable\ (continued)}\\")
@@ -139,7 +111,7 @@ def _real_longtable(rows, label, caption, lines):
     lines.append(r"\end{longtable}")
     lines.append("")
 
-# Main real table — HiFi readset, mapquik excluded
+# Main real table — HiFi readset
 main_real = [r for r in real
              if r["mapper"] in MAIN_MAPPERS and r.get("readset", "hifi") == "hifi"]
 main_real.sort(key=lambda r: (GENOMES.index(r["genome"]) if r["genome"] in GENOMES else 9,
@@ -160,19 +132,6 @@ if rye_dc_real:
     _real_longtable(
         rye_dc_real, "tab:app-real-rye-dc",
         r"Rye DeepConsensus real-data benchmark, evaluated by consensus of mappers. "
-        r"Acc.\ and Prec.\ are computed over reads in the consensus set; time excludes index loading.",
-        lines)
-
-# mapquik real table (HiFi only)
-mapquik_real = [r for r in real
-                if r["mapper"] == "mapquik" and r.get("readset", "hifi") == "hifi"]
-mapquik_real.sort(key=lambda r: GENOMES.index(r["genome"]) if r["genome"] in GENOMES else 9)
-if mapquik_real:
-    lines.append("% --- mapquik real-data (separate appendix) ---")
-    lines.append("")
-    _real_longtable(
-        mapquik_real, "tab:app-real-mapquik",
-        r"\texttt{mapquik} real-data benchmark, evaluated by consensus of mappers. "
         r"Acc.\ and Prec.\ are computed over reads in the consensus set; time excludes index loading.",
         lines)
 
