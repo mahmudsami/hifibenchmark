@@ -17,9 +17,9 @@ MAPPER_NAME = {
 MAIN_MAPPERS = {"minimap2", "blend", "strobeclust", "mapquik", "synpact"}
 MAPPER_ORDER = {m: i for i, m in enumerate(
     ["minimap2", "blend", "strobeclust", "mapquik", "synpact"])}
-GENOMES = ["arabidopsis", "human", "maize", "rye"]
+GENOMES = ["arabidopsis", "human", "human_y", "maize", "rye"]
 GENOME_TITLE = {"arabidopsis": "\\emph{Arabidopsis}", "human": "Human",
-                "maize": "Maize", "rye": "Rye"}
+                "human_y": "Human (chrY)", "maize": "Maize", "rye": "Rye"}
 
 
 def f(x, nd=2):
