@@ -9,14 +9,13 @@ gapless / T2T-grade plant and animal genomes, comparing mapping **accuracy**,
 [mapquik](https://github.com/ekimb/mapquik) ·
 [synpact](https://github.com/mahmudsami/synpact)
 
-The benchmark has three arms:
+The benchmark has three benchmarks:
 
 1. **Simulation** (`run_benchmark.sh`) — simulated HiFi reads with *known* truth,
-   swept over error rate and read length. The primary accuracy benchmark.
+    over different error rates and read length. The primary accuracy benchmark.
 2. **Real data** (`run_real_benchmark.sh`) — real public HiFi reads with no
-   truth, evaluated by consensus-of-mappers.
-3. **Lungfish** (`scripts/lungfish_*.sh`) — a large-genome (~35 Gb) stress test,
-   run natively, comparing only minimap2 and synpact.
+   truth, evaluated by mapping agreement.
+3. **Lungfish** (`scripts/lungfish_*.sh`) — a large-genome (~36 Gb) stress test.
 
 ---
 
@@ -33,22 +32,19 @@ run (`scripts/01_download_references.sh`).
 | Arabidopsis | Col-CEN v1.2 (Col-0 T2T) | `schatzlab/Col-CEN` |
 | Rye | Lo7_V3 (near-complete) | NCBI `GCA_965641915.1` |
 
-`human_y` is a small, highly repetitive (ampliconic/satellite) stress-test
-genome used only in the simulation arm.
 
 ## Real HiFi read datasets
 
-Used by the real-data arm; streamed from ENA/SRA and the first ~100 k reads kept
-(`scripts/10_download_real_reads.sh`). Reads are matched to the same line as the
-reference, so divergence reflects mapper behaviour rather than cross-line variation.
+Used by the real benchmark; streamed from ENA/SRA and the first ~100 k reads kept
+(`scripts/10_download_real_reads.sh`).
 
 | Genome | Reads | Accession | Matches reference? |
 |--------|-------|-----------|--------------------|
 | Human | HG002 PacBio **Revio** HiFi (HPRC) | `SRR34290932` | HG002 vs CHM13 — cross-individual (~0.1 %); CHM13v2.0's chrY *is* HG002's |
-| Maize | Mo17 HiFi | `SRR15447414` | ✅ same line as Mo17 reference |
-| Arabidopsis | Col-0 HiFi | `ERR13987671` | ✅ same line as Col-CEN |
-| Rye (HiFi) | Lo7 **Revio** HiFi | `ERR15194059` | ✅ same line as Lo7 |
-| Rye (DeepConsensus) | Lo7 **Revio** DeepConsensus | `ERR15194060` | ✅ same line as Lo7 |
+| Maize | Mo17 HiFi | `SRR15447414` | Yes |
+| Arabidopsis | Col-0 HiFi | `ERR13987671` | Yes |
+| Rye (HiFi) | Lo7 **Revio** HiFi | `ERR15194059` | Yes |
+| Rye (DeepConsensus) | Lo7 **Revio** DeepConsensus | `ERR15194060` | Yes |
 
 > ENA stores these FASTQs under a `_subreads.fastq.gz` filename by default; the
 > content is genuine HiFi/CCS (mean read length ~15–20 kb, per-base Q ≥ 20).
@@ -57,14 +53,14 @@ reference, so divergence reflects mapper behaviour rather than cross-line variat
 
 ## The benchmarks explained
 
-### 1. Simulation arm — `run_benchmark.sh`
+### 1. Simulation — `run_benchmark.sh`
 
-The primary accuracy benchmark, run against **known ground truth**.
+The simulated accuracy benchmark with **known ground truth**.
 
-- A deterministic, pure-Python HiFi simulator (`scripts/02_simulate_reads.py`)
-  draws reads from the reference and injects substitutions/indels at an **exact**
-  target error rate, writing the true genomic coordinates of every read directly.
-  No pbsim/alignment is needed — accuracy is scored against the truth file.
+- A deterministic, Python HiFi simulator (`scripts/02_simulate_reads.py`)
+  draws reads from the reference and injects substitutions/indels at a
+  target error rate, storing the true genomic coordinates of every reads.
+  Accuracy is scored against the truth file.
 - **Sweep:** every combination of
   - genome ∈ {human, human_y, maize, arabidopsis, rye}
   - error rate ∈ {0 %, 0.1 %, 0.5 %, 1 %}
@@ -79,7 +75,7 @@ The primary accuracy benchmark, run against **known ground truth**.
   `results/plots/{accuracy,precision,map_time,peak_rss}.png`
   (rows = error rate, columns = genome).
 
-### 2. Real-data arm — `run_real_benchmark.sh`
+### 2. Real-data benchmark — `run_real_benchmark.sh`
 
 Real reads have no ground truth, so this arm uses a **consensus-of-mappers**
 evaluation (`scripts/12_eval_consensus.py`): for each read, a locus is accepted
@@ -91,13 +87,10 @@ tolerance; every tool is then scored against that consensus.
 - **Outputs:** `results/csv/results_real.csv` and the grid figure
   `results/plots/real_benchmark.png` (rows = genome/readset, columns = metric).
 
-### 3. Lungfish arm — `scripts/lungfish_*.sh`
+### 3. Lungfish benchmark — `scripts/lungfish_*.sh`
 
-A standalone, **native (non-Docker)** stress test on a ~35 Gb lungfish genome —
-an order of magnitude larger than the other references — comparing **minimap2 vs
-synpact** only. It checks index-build feasibility and mapping under extreme
-memory/disk pressure (the scripts decompress transiently and delete intermediate
-files to stay within disk). Outputs land in `results/lungfish/`.
+A stress test on a ~36 Gb lungfish genome comparing **minimap2 vs
+synpact** only. Outputs are written to in `results/lungfish/`.
 
 ---
 
@@ -123,15 +116,15 @@ files to stay within disk). Outputs land in `results/lungfish/`.
 bash docker/build_images.sh
 ```
 
-References download automatically on the first pipeline run.
+References are downloaded automatically on the first pipeline run.
 
 ## Running
 
 ```bash
-# Simulation arm: 5 genomes × 4 error rates × 4 read lengths × 4 mappers
+# Simulation: 5 genomes × 4 error rates × 4 read lengths × 4 mappers
 bash run_benchmark.sh                 # add --force to ignore cached outputs
 
-# Real-data arm: real HiFi reads + consensus-of-mappers evaluation
+# Real-data: real HiFi reads + consensus-of-mappers evaluation
 bash run_real_benchmark.sh            # add --force to re-map (keeps downloaded reads)
 
 # Subset the mappers in either arm via MAPPERS_OVERRIDE, e.g. drop minimap2:
@@ -158,7 +151,7 @@ With `KEEP_INDEXES=0` (the default), an index's build time, peak RSS and on-disk
 size are recorded into its metrics JSON *before* deletion, so nothing reported is
 lost and only one genome's indexes sit on disk at a time.
 
-## How mapping-only memory is measured
+## How memory is measured
 
 To make peak RSS reflect **mapping alone** (not index construction), index build
 and mapping are split: `scripts/04_index_<tool>.sh` builds and times the index
